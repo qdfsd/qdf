@@ -35,22 +35,22 @@
   "products": [
     {
       "name": "钙镁硼锌",
-      "img": "img/1.jpg",
+      "img": "1.jpg",
       "desc": "离子全游离，吸收效率高"
     },
     {
       "name": "微生物菌剂营养液",
-      "img": "img/2.jpg",
+      "img": "2.jpg",
       "desc": "生根壮苗，改良土壤"
     },
     {
       "name": "香又甜",
-      "img": "img/3.jpg",
+      "img": "3.jpg",
       "desc": "增香增甜，提升风味"
     },
     {
       "name": "豆蛋白生物有机肥",
-      "img": "img/4.jpg",
+      "img": "4.jpg",
       "desc": "有机质丰富，提质增产"
     }
   ]
