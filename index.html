@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>齐达丰·巴鲁玛生态农业技术</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif}
+        body{background:#f5f9f5;color:#333;line-height:1.6}
+        header{background:linear-gradient(135deg,#2c783e 0%,#43a047 100%);color:white;padding:2rem 1rem;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+        .logo{max-width:120px;margin-bottom:1rem}
+        header h1{font-size:2.2rem;margin-bottom:0.5rem}
+        .container{max-width:1200px;margin:0 auto;padding:2rem 1rem}
+        .section-title{text-align:center;color:#2c783e;font-size:1.8rem;margin-bottom:2rem;position:relative}
+        .section-title::after{content:"";display:block;width:80px;height:3px;background:#43a047;margin:0.5rem auto 0}
+        .tech-section{background:white;border-radius:12px;padding:2rem;margin-bottom:3rem;box-shadow:0 4px 16px rgba(0,0,0,0.05)}
+        .tech-item{margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px dashed #e0e0e0}
+        .tech-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+        .tech-item h3{color:#2c783e;font-size:1.4rem;margin-bottom:1rem;display:flex;align-items:center}
+        .tech-item h3::before{content:"✓";background:#43a047;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-right:10px;font-size:0.9rem}
+
+        /* 自定义顶部板块样式 */
+        .top-blocks{margin-bottom:2rem}
+        .block-item{background:white;padding:1.2rem;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.05);margin-bottom:1rem}
+        .block-item h3{color:#2c783e;margin-bottom:0.6rem}
+        .block-item p{white-space:pre-line;color:#444}
+
+        .product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:2rem;margin-top:2rem}
+        .product-card{background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.08);transition:0.3s}
+        .product-card:hover{transform:translateY(-8px)}
+        .product-card img{width:100%;height:280px;object-fit:contain;background:#fafafa;padding:1rem}
+        .product-info{padding:1.2rem;text-align:center}
+        .product-info h4{color:#2c783e;font-size:1.2rem;margin-bottom:0.5rem}
+        .footer{background:#2c783e;color:white;text-align:center;padding:2rem;margin-top:3rem}
+        .contact{margin-top:10px;font-size:16px}
+        .admin-btn{position:fixed;bottom:20px;right:20px;background:#2c783e;color:white;padding:10px 16px;border-radius:30px;text-decoration:none}
+    </style>
+</head>
+<body>
+    <header>
+        <img id="logoImg" class="logo" alt="Logo">
+        <h1 id="title">齐达丰·巴鲁玛生态农业技术</h1>
+        <p id="subtitle">高活性复合微生物原动力·生态种植可持续发展体系</p>
+    </header>
+
+    <div class="container">
+        <section class="tech-section">
+            <h2 class="section-title">技术核心</h2>
+            <p id="intro" style="text-align:center;margin-bottom:2rem;color:#555"></p>
+            <div id="techList"></div>
+        </section>
+
+        <!-- 顶部自定义板块 -->
+        <section class="top-blocks" id="topBlocksSection"></section>
+
+        <section>
+            <h2 class="section-title">核心产品</h2>
+            <div class="product-grid" id="productList"></div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <p id="footer"></p>
+        <div class="contact" id="contact"></div>
+    </footer>
+
+    <a href="admin.html" class="admin-btn">进入编辑后台</a>
+
+    <script>
+        fetch('data.json')
+        .then(res=>res.json())
+        .then(data=>{
+            // LOGO
+            if(data.logo){
+                document.getElementById('logoImg').src = 'img/'+data.logo
+            }
+            document.getElementById('title').innerText = data.title
+            document.getElementById('subtitle').innerText = data.subtitle
+            document.getElementById('intro').innerText = data.intro
+            document.getElementById('footer').innerText = data.footer
+            document.getElementById('contact').innerText = data.contact || ''
+
+            // 技术
+            const techList = document.getElementById('techList')
+            data.techs.forEach(t=>{
+                techList.innerHTML += `
+                <div class="tech-item">
+                    <h3>${t.name}</h3>
+                    <p>${t.desc}</p>
+                </div>`
+            })
+
+            // 顶部自定义板块
+            const blocksEl = document.getElementById('topBlocksSection')
+            data.blocks.forEach(b=>{
+                blocksEl.innerHTML += `
+                <div class="block-item">
+                    <h3>${b.title}</h3>
+                    <p>${b.content}</p>
+                </div>`
+            })
+
+            // 产品
+            const productList = document.getElementById('productList')
+            data.products.forEach(p=>{
+                productList.innerHTML += `
+                <div class="product-card">
+                    <img src="img/${p.img}" alt="${p.name}">
+                    <div class="product-info">
+                        <h4>${p.name}</h4>
+                        <p>${p.desc}</p>
+                    </div>
+                </div>`
+            })
+        })
+    </script>
+</body>
+</html>

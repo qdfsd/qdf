@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - 巴鲁玛生态农业</title>
+    <style>
+        *{box-sizing:border-box;font-family:Microsoft YaHei}
+        body{background:#f4f7f4;padding:20px}
+        .login{max-width:400px;margin:50px auto;background:white;padding:30px;border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,0.1)}
+        .login h2{color:#2c783e;text-align:center}
+        input,textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;margin-bottom:10px}
+        button{background:#2c783e;color:white;border:none;padding:12px 20px;border-radius:6px;cursor-pointer}
+        .box{background:white;padding:20px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.05)}
+        h2{color:#2c783e;margin-bottom:15px}
+        label{display:block;margin:8px 0 5px;font-weight:bold}
+        .techItem,.productItem,.blockItem{border:1px solid #eee;padding:15px;margin-bottom:15px;border-radius:6px}
+        .tip{color:#666;font-size:12px}
+        #admin{display:none}
+        .upload{border:1px dashed #2c783e;padding:10px;text-align:center;border-radius:6px;cursor-pointer}
+        .addBtn{background:#0d9f52;margin-bottom:10px}
+        .delBtn{background:#e53935}
+    </style>
+</head>
+<body>
+
+<div id="loginPage" class="login">
+    <h2>管理员登录</h2>
+    <input type="password" id="pwd" placeholder="请输入管理员密码">
+    <button onclick="login()">登录</button>
+</div>
+
+<div id="admin">
+    <div class="box">
+        <h2>基础信息设置</h2>
+        <div class="upload" onclick="uploadLogo()">点击上传 Logo</div>
+        <input type="hidden" id="logoImg">
+        <input id="title" placeholder="网站主标题">
+        <input id="subtitle" placeholder="副标题">
+        <textarea id="intro" rows="4" placeholder="技术简介"></textarea>
+        <input id="footer" placeholder="底部公司信息">
+        <input id="contact" placeholder="联系方式（电话/微信/地址）">
+    </div>
+
+    <div class="box">
+        <h2>三大技术模块</h2>
+        <div id="techWrap">
+            <div class="techItem">
+                <input class="tName" placeholder="技术名称">
+                <textarea class="tDesc" rows="3" placeholder="技术介绍"></textarea>
+            </div>
+            <div class="techItem">
+                <input class="tName" placeholder="技术名称">
+                <textarea class="tDesc" rows="3" placeholder="技术介绍"></textarea>
+            </div>
+            <div class="techItem">
+                <input class="tName" placeholder="技术名称">
+                <textarea class="tDesc" rows="3" placeholder="技术介绍"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 新增：顶部板块管理 ========== -->
+    <div class="box">
+        <h2>产品上方板块管理（可增删）</h2>
+        <button class="addBtn" onclick="addBlock()">➕ 添加一个板块</button>
+        <div id="blockWrap"></div>
+    </div>
+
+    <div class="box">
+        <h2>产品管理（可添加任意数量）</h2>
+        <button class="addBtn" onclick="addProduct()">➕ 添加一个产品</button>
+        <div id="productWrap"></div>
+    </div>
+
+    <button onclick="save()">💾 保存并更新网站</button>
+    <br><br>
+    <a href="index.html" style="color:#2c783e">← 返回前台展示页面</a>
+</div>
+
+<script>
+    const PASSWORD = "123456";
+    let uploadedImages = {};
+    let logoFile = null;
+
+    function login() {
+        if (document.getElementById('pwd').value === PASSWORD) {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('admin').style.display = 'block';
+            loadData();
+        } else {
+            alert('密码错误！');
+        }
+    }
+
+    // Logo上传
+    function uploadLogo() {
+        const inp = document.createElement('input');
+        inp.type = 'file';
+        inp.accept = 'image/*';
+        inp.onchange = () => {
+            const file = inp.files[0];
+            const reader = new FileReader();
+            reader.onload = e => {
+                const name = 'logo.png';
+                uploadedImages[name] = e.target.result;
+                logoFile = name;
+                document.querySelector('.upload').innerText = '✅ Logo 已上传';
+                document.getElementById('logoImg').value = name;
+            };
+            reader.readAsDataURL(file);
+        };
+        inp.click();
+    }
+
+    // ========== 板块增删逻辑 ==========
+    function createBlockItem(title = '', content = '') {
+        const div = document.createElement('div');
+        div.className = 'blockItem';
+        div.innerHTML = `
+            <input class="bTitle" value="${title}" placeholder="板块标题（如：使用须知/招商合作/温馨提示）">
+            <textarea class="bContent" rows="3" placeholder="板块内容">${content}</textarea>
+            <button class="delBtn" onclick="this.parentElement.remove()">🗑️ 删除该板块</button>
+        `;
+        return div;
+    }
+
+    function addBlock() {
+        document.getElementById('blockWrap').appendChild(createBlockItem());
+    }
+
+    // ========== 产品增删逻辑 ==========
+    function createProductItem(name = '', img = '', desc = '') {
+        const div = document.createElement('div');
+        div.className = 'productItem';
+        div.innerHTML = `
+            <input class="pName" value="${name}" placeholder="产品名称">
+            <div class="upload" onclick="uploadProduct(this)">${img ? '✅ 已加载：'+img : '点击上传产品图片'}</div>
+            <input type="hidden" class="pImg" value="${img}">
+            <input class="pDesc" value="${desc}" placeholder="产品描述">
+            <button class="delBtn" onclick="this.parentElement.remove()">🗑️ 删除该产品</button>
+        `;
+        return div;
+    }
+
+    function uploadProduct(el) {
+        const inp = document.createElement('input');
+        inp.type = 'file';
+        inp.accept = 'image/*';
+        inp.onchange = () => {
+            const file = inp.files[0];
+            const reader = new FileReader();
+            reader.onload = e => {
+                const name = 'product_' + Date.now() + '.jpg';
+                uploadedImages[name] = e.target.result;
+                el.innerText = '✅ 已上传：' + name;
+                el.nextElementSibling.value = name;
+            };
+            reader.readAsDataURL(file);
+        };
+        inp.click();
+    }
+
+    function addProduct() {
+        document.getElementById('productWrap').appendChild(createProductItem());
+    }
+
+    // ========== 加载数据 ==========
+    function loadData() {
+        fetch('data.json')
+        .then(r => r.json())
+        .then(data => {
+            if(data.logo){
+                document.querySelector('.upload').innerText = '✅ 已加载 Logo';
+                document.getElementById('logoImg').value = data.logo;
+            }
+            document.getElementById('title').value = data.title;
+            document.getElementById('subtitle').value = data.subtitle;
+            document.getElementById('intro').value = data.intro;
+            document.getElementById('footer').value = data.footer;
+            document.getElementById('contact').value = data.contact || '';
+
+            // 技术
+            const ts = document.querySelectorAll('.techItem');
+            data.techs.forEach((t, i) => {
+                if (ts[i]) {
+                    ts[i].querySelector('.tName').value = t.name;
+                    ts[i].querySelector('.tDesc').value = t.desc;
+                }
+            });
+
+            // 板块
+            const blockWrap = document.getElementById('blockWrap');
+            data.blocks.forEach(b => {
+                blockWrap.appendChild(createBlockItem(b.title, b.content));
+            });
+
+            // 产品
+            const wrap = document.getElementById('productWrap');
+            data.products.forEach(p => {
+                wrap.appendChild(createProductItem(p.name, p.img, p.desc));
+            });
+        });
+    }
+
+    // ========== 保存 ==========
+    function save() {
+        const data = {
+            logo: document.getElementById('logoImg').value,
+            title: document.getElementById('title').value,
+            subtitle: document.getElementById('subtitle').value,
+            intro: document.getElementById('intro').value,
+            footer: document.getElementById('footer').value,
+            contact: document.getElementById('contact').value,
+
+            // 板块
+            blocks: [],
+
+            techs: [],
+            products: []
+        };
+
+        // 读取板块
+        document.querySelectorAll('.blockItem').forEach(item=>{
+            data.blocks.push({
+                title: item.querySelector('.bTitle').value,
+                content: item.querySelector('.bContent').value
+            });
+        });
+
+        // 技术
+        document.querySelectorAll('.techItem').forEach(item => {
+            data.techs.push({
+                name: item.querySelector('.tName').value,
+                desc: item.querySelector('.tDesc').value
+            });
+        });
+
+        // 产品
+        document.querySelectorAll('.productItem').forEach(item => {
+            data.products.push({
+                name: item.querySelector('.pName').value,
+                img: item.querySelector('.pImg').value,
+                desc: item.querySelector('.pDesc').value
+            });
+        });
+
+        // 下载 data.json
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'data.json';
+        a.click();
+
+        // 下载图片
+        for (let name in uploadedImages) {
+            const img = document.createElement('a');
+            img.href = uploadedImages[name];
+            img.download = 'img/' + name;
+            img.click();
+        }
+
+        alert('保存成功！\n\n1. 用下载的 data.json 覆盖原文件\n2. 新图片放进 img 文件夹\n3. 刷新前台即可');
+    }
+</script>
+</body>
+</html>
